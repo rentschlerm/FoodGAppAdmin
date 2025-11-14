@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://localhost:5129', // backend ASP.NET Core app
+        target: 'https://foodgappbackendwebapi-production.up.railway.app', // backend ASP.NET Core app
         changeOrigin: true,
         secure: false, // allow self-signed dev cert
         // strip nothing because we already prefix with /api
