@@ -176,18 +176,22 @@
   border: 1px solid #bdc3c7;
 }
 
-.invoice-section table td {
-  padding: 10px 8px;
-  border: 1px solid #bdc3c7;
-  color: #2c3e50;
-  background-color: #ffffff;
-}
-
-.invoice-section table tbody tr:nth-child(even) {
+  .invoice-section table td {
+    padding: 10px 8px;
+    border: 1px solid #bdc3c7;
+    color: #2c3e50;
+    background-color: #ffffff;
+  }.invoice-section table tbody tr:nth-child(even) {
   background-color: #f8f9fa;
 }
 
 @media print {
+  /* Reset body positioning for print */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
   /* Hide everything except the printable summary */
   body * {
     visibility: hidden;
@@ -198,17 +202,19 @@
   }
   
   .printable-summary {
+    /* Keep flow layout so page margins are respected */
     position: absolute !important;
-    left: 0 !important;
     top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
-    max-width: 210mm !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
     max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 20px !important;
-    margin: 0 auto !important;
+    padding: 0.5in !important;
+    margin: 0 !important;
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -224,9 +230,13 @@
   
   .summary-section, .invoice-section {
     page-break-inside: avoid !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 15px !important;
+    padding: 0 !important;
     border: none !important;
-    border-bottom: 1px solid #e5e7eb !important; /* subtle divider */
+  }
+  
+  .invoice-section {
+    margin-bottom: 20px !important;
   }
 
   .summary-table th, .summary-table td {
@@ -235,41 +245,89 @@
     print-color-adjust: exact;
   }
   
+  /* Keep clean header styling but remove rounded box appearance in print */
   .invoice-header {
     page-break-inside: avoid !important;
     border: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+    padding: 15px !important;
     margin-bottom: 20px !important;
-  }
-  /* Repeating header on each printed page */
-  .print-page-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 110px; /* enough for logo & meta */
-    padding: 14px 28px 10px 28px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    background: #ffffff !important;
-    border-bottom: 2px solid #2c3e50 !important;
-    z-index: 9999;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .print-page-header img { height: 52px; }
-  .print-page-header h1 {
-    margin: 0;
-    font-size: 22px;
-    color: #2c3e50;
-    font-weight: 700;
-    letter-spacing: .5px;
+  /* Page setup for letter-sized paper */
+  @page {
+    size: letter;
+    margin: 0.5in;
   }
-  .print-page-header .meta-block { font-size: 11px; color: #34495e; text-align: right; }
-  .print-page-header .meta-block div { line-height: 1.25; }
-  /* Push printable content below fixed header */
-  .printable-summary { margin-top: 120px !important; }
-  .page-break { page-break-before: always !important; }
+  
+  /* Hide the single print-page-header (we'll add it to each section instead) */
+  .printable-summary > .print-page-header {
+    display: none !important;
+  }
+  
+  /* Show header before each page-break section */
+  .page-break {
+    page-break-before: always !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Ensure printable-summary is normal block */
+  .printable-summary {
+    display: block !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    overflow: hidden !important;
+    font-size: 11px !important;
+  }
+  
+  /* Sections remain as blocks */
+  .invoice-header,
+  .invoice-section {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Ensure tables fit within page */
+  .printable-summary table,
+  .invoice-section table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important; /* prevent over-expansion and keep within page */
+    box-sizing: border-box !important; /* include borders in total width */
+    font-size: 10px !important;
+    border-collapse: collapse !important;
+    border: 1px solid #bdc3c7 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    hyphens: auto !important;
+  }
+  
+  .printable-summary table td,
+  .printable-summary table th,
+  .invoice-section table td,
+  .invoice-section table th {
+    padding: 6px 4px !important;
+    font-size: 10px !important;
+    border: 1px solid #bdc3c7 !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+  }
+  
+  /* Ensure print-only tables maintain their borders */
+  .print-only table {
+    border: 1px solid #bdc3c7 !important;
+    border-collapse: collapse !important;
+  }
+  
+  .print-only table td,
+  .print-only table th {
+    border: 1px solid #bdc3c7 !important;
+  }
   
 
 /* Screen only: hide repeating header is declared outside @media print at end */

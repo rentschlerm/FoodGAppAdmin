@@ -73,13 +73,25 @@ export default function LogsAndReports() {
 
   // Filtering functions (replace with real logic as needed)
   function getFilteredFoodLogs(logs: FoodLog[]) {
-    return logs.filter(() => true); // No filter for now
+    return logs.filter((log) => {
+      // For now, keep all logs since we don't know the exact date field structure
+      // This will be updated once we identify the correct date field
+      return true;
+    });
   }
   function getFilteredNutrientLogs(logs: any[]) {
-    return logs.filter(() => true);
+    return logs.filter((log) => {
+      if (!log.updatedAt) return false;
+      const logDate = new Date(log.updatedAt).toISOString().split('T')[0];
+      return logDate >= startDate && logDate <= endDate;
+    });
   }
   function getFilteredDailyIntakeLogs(logs: any[]) {
-    return logs.filter(() => true);
+    return logs.filter((log) => {
+      if (!log.updatedAt) return false;
+      const logDate = new Date(log.updatedAt).toISOString().split('T')[0];
+      return logDate >= startDate && logDate <= endDate;
+    });
   }
   // ...existing logic and helpers (keep only one set, remove all duplicates)...
 
@@ -159,6 +171,30 @@ export default function LogsAndReports() {
   const handlePrint = () => {
     window.print();
   };
+
+  // Repeating header component for print pages
+  const PageHeader = () => (
+    <div className="print-only" style={{ 
+      padding: '10px 0 8px 0', 
+      marginBottom: '12px',
+      borderBottom: '2px solid #2c3e50',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <img src={Logo} alt="WellNu Logo" style={{ height: '35px' }} />
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#2c3e50', margin: 0 }}>ADMIN ANALYTICS REPORT</div>
+          <div style={{ fontSize: '8px', color: '#7f8c8d', fontWeight: 600 }}>Period: {getPeriodLabel()}</div>
+        </div>
+      </div>
+      <div style={{ fontSize: '8px', textAlign: 'right', color: '#2c3e50', lineHeight: 1.5 }}>
+        <div><strong>Report #:</strong> {'WN-' + new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0')}</div>
+        <div><strong>Generated:</strong> {new Date().toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}</div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="logs-reports-container" data-testid="logs-reports-container">
@@ -647,23 +683,25 @@ export default function LogsAndReports() {
         </div>
       </div>
 
-      {/* Repeating print header (hidden on screen; appears each printed page) */}
-      <div className="print-page-header" aria-hidden="true">
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-          <img src={Logo} alt="WellNu Logo" />
-          <div>
-            <h1>ADMIN ANALYTICS REPORT</h1>
-            <div style={{ fontSize: 11, color: '#7f8c8d', fontWeight: 600 }}>Period: {getPeriodLabel()}</div>
-          </div>
-        </div>
-        <div style={{ fontSize: 11, textAlign: 'right', color: '#2c3e50' }}>
-          <div><strong>Report #:</strong> {'WN-' + new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0')}</div>
-          <div><strong>Generated:</strong> {new Date().toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}</div>
-        </div>
-      </div>
-
       {/* Printable Summary Panel */}
       <div className="printable-summary" data-testid="printable-summary">
+        {/* Repeating print header (appears on each printed page) */}
+        <div className="print-page-header" aria-hidden="true">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <img src={Logo} alt="WellNu Logo" style={{ height: '40px' }} />
+              <div>
+                <h1 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#2c3e50' }}>ADMIN ANALYTICS REPORT</h1>
+                <div style={{ fontSize: '9px', color: '#7f8c8d', fontWeight: 600, marginTop: '2px' }}>Period: {getPeriodLabel()}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '9px', textAlign: 'right', color: '#2c3e50', lineHeight: 1.6 }}>
+              <div><strong>Report #:</strong> {'WN-' + new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0')}</div>
+              <div><strong>Generated:</strong> {new Date().toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}</div>
+            </div>
+          </div>
+        </div>
+        
         <button className="print-button" onClick={handlePrint} data-testid="print-button">
           🖨️ Print Summary Report
         </button>
@@ -782,6 +820,7 @@ export default function LogsAndReports() {
           marginBottom: '25px',
           overflow: 'hidden'
         }} data-testid="summary-food-table">
+          <PageHeader />
                 {/* Meal Time Summary (interactive, derived from categoryName) */}
                 {(() => {
                   const mealNames = ['Breakfast','Lunch','Dinner'];
@@ -966,6 +1005,7 @@ export default function LogsAndReports() {
           marginBottom: '25px',
           overflow: 'hidden'
         }} data-testid="summary-nutrient-logs">
+          <PageHeader />
           <div style={{ 
             backgroundColor: '#34495e', 
             color: 'white', 
@@ -1052,6 +1092,7 @@ export default function LogsAndReports() {
           marginBottom: '25px',
           overflow: 'hidden'
         }} data-testid="summary-daily-intake">
+          <PageHeader />
           <div style={{ 
             backgroundColor: '#34495e', 
             color: 'white', 
