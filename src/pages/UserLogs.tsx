@@ -1,9 +1,9 @@
-  // Helper: sort users by dateCreated (newest first, 'N/A' as oldest)
+// Helper: sort users by dateCreated (newest first, 'N/A' as oldest)
 // Helper: sort users by dateCreated (newest first, 'N/A' as oldest)
 function sortAndFilterUsers(userList: User[], term: string) {
-  // Filter by email (case-insensitive)
+  // Filter by first name (case-insensitive)
   const filtered = term.trim()
-    ? userList.filter(u => (u.email || '').toLowerCase().includes(term.trim().toLowerCase()))
+    ? userList.filter(u => (u.firstName || '').toLowerCase().includes(term.trim().toLowerCase()))
     : userList;
   // Sort by dateCreated (newest first, 'N/A' as oldest)
   return filtered.sort((a, b) => {
@@ -134,7 +134,7 @@ export default function UserLogs() {
           <div style={{ position: 'relative', maxWidth: '400px' }}>
             <input
               type="text"
-              placeholder="Search users"
+              placeholder="Search users by first name"
               value={searchTerm}
               data-testid="user-search-input"
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -175,6 +175,15 @@ export default function UserLogs() {
                   border: '1px solid #2c3e50',
                   fontSize: '14px'
                 }}>First Name</th>
+                <th style={{ 
+                  backgroundColor: '#34495e', 
+                  color: '#fff', 
+                  padding: '12px 8px', 
+                  textAlign: 'left', 
+                  fontWeight: '600', 
+                  border: '1px solid #2c3e50',
+                  fontSize: '14px'
+                }}>Last Name</th>
                 <th style={{ 
                   backgroundColor: '#34495e', 
                   color: '#fff', 
@@ -243,10 +252,18 @@ export default function UserLogs() {
                         fontSize: '14px',
                         fontWeight: 'bold'
                       }}>
-                        {(user.firstName || user.name || '').charAt(0)}
+                        {(user.firstName || '').charAt(0)}
                       </div>
-                      {(user.firstName || (user.name ? user.name.split(' ')[0] : ''))}
+                      {(user.firstName || '')}
                     </div>
+                  </td>
+                  <td style={{ 
+                    padding: '10px 8px', 
+                    border: '1px solid #ddd', 
+                    color: '#2c3e50', 
+                    backgroundColor: '#fff' 
+                  }}>
+                    {user.lastName || ''}
                   </td>
                   <td style={{ 
                     padding: '10px 8px', 
