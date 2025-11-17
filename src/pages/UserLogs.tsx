@@ -1,17 +1,18 @@
   // Helper: sort users by dateCreated (newest first, 'N/A' as oldest)
-  function sortAndFilterUsers(userList: User[], term: string) {
-    // Filter by email (case-insensitive)
-    const filtered = term.trim()
-      ? userList.filter(u => (u.email || '').toLowerCase().includes(term.trim().toLowerCase()))
-      : userList;
-    // Sort by dateCreated (newest first, 'N/A' as oldest)
-    return filtered.sort((a, b) => {
-      if (a.dateCreated === 'N/A' && b.dateCreated === 'N/A') return 0;
-      if (a.dateCreated === 'N/A') return 1;
-      if (b.dateCreated === 'N/A') return -1;
-      return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
-    });
-  }
+// Helper: sort users by dateCreated (newest first, 'N/A' as oldest)
+function sortAndFilterUsers(userList: User[], term: string) {
+  // Filter by email (case-insensitive)
+  const filtered = term.trim()
+    ? userList.filter(u => (u.email || '').toLowerCase().includes(term.trim().toLowerCase()))
+    : userList;
+  // Sort by dateCreated (newest first, 'N/A' as oldest)
+  return filtered.sort((a, b) => {
+    if (a.dateCreated === 'N/A' && b.dateCreated === 'N/A') return 0;
+    if (a.dateCreated === 'N/A') return 1;
+    if (b.dateCreated === 'N/A') return -1;
+    return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
+  });
+}
 import { useState, useEffect } from 'react'
 import { apiService, type User } from '../services/apiService'
 
@@ -42,20 +43,6 @@ export default function UserLogs() {
         // Initial sort and filter
         setUsers(sortAndFilterUsers(normalizedUsers, searchTerm));
       } else {
-  // Helper: sort users by dateCreated (newest first, null as oldest)
-  function sortAndFilterUsers(userList: User[], term: string) {
-    // Filter by name (case-insensitive)
-    const filtered = term.trim()
-      ? userList.filter(u => (u.name || '').toLowerCase().includes(term.trim().toLowerCase()))
-      : userList;
-    // Sort by dateCreated (newest first, null as oldest)
-    return filtered.sort((a, b) => {
-      if (!a.dateCreated && !b.dateCreated) return 0;
-      if (!a.dateCreated) return 1;
-      if (!b.dateCreated) return -1;
-      return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
-    });
-  }
         throw new Error('No users data received from backend')
       }
     } catch (err) {
