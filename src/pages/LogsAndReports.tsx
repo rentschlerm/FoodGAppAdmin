@@ -47,18 +47,49 @@ export default function LogsAndReports() {
       .catch(() => setDailyIntakeError('Failed to load daily intake logs'))
       .finally(() => setDailyIntakeLoading(false));
   }, []);
+
+  // Fetch user statistics and users for names
+  React.useEffect(() => {
+    console.log('Fetching users for logs and reports...');
+    apiService.getUsers()
+      .then(data => {
+        console.log('Users API response:', data);
+        if (data.users) {
+          // Set user stats
+          const active = data.users.filter(user => user.status === 'Active' || user.isActive).length;
+          const inactive = data.users.length - active;
+          setUserStats({
+            total: data.users.length,
+            active,
+            inactive
+          });
+
+          // Load all users into usersById for name lookup
+          const usersMap: Record<number, any> = {};
+          data.users.forEach(user => {
+            usersMap[user.id] = user;
+            console.log('Adding user to map:', user.id, user.firstName, user.name);
+          });
+          setUsersById(usersMap);
+          console.log('Final usersById map:', usersMap);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to load user stats:', err);
+        // Set default stats to avoid "unavailable" message
+        setUserStats({
+          total: 0,
+          active: 0,
+          inactive: 0
+        });
+      });
+  }, []);
+
   // Example state and placeholder data (replace with real API/data logic)
   const [foodLogs, setFoodLogs] = React.useState<FoodLog[]>([]);
   const [nutrientLogs, setNutrientLogs] = React.useState<any[]>([]);
   const [dailyIntakeLogs, setDailyIntakeLogs] = React.useState<any[]>([]);
-  const [userLogs, setUserLogs] = React.useState<any[]>([]);
   const [usersById, setUsersById] = React.useState<Record<number, any>>({});
-  // Fetch user logs from backend API on mount
-  React.useEffect(() => {
-    apiService.getUserLogs()
-      .then(data => setUserLogs(data.userLogs || []))
-      .catch(() => console.warn('Failed to load user logs'));
-  }, []);
   const [startDate, setStartDate] = React.useState('2025-11-01');
   const [endDate, setEndDate] = React.useState('2025-11-17');
   const [foodLogsLoading, setFoodLogsLoading] = React.useState(false);
@@ -69,11 +100,11 @@ export default function LogsAndReports() {
   const [dailyIntakeError, setDailyIntakeError] = React.useState('');
   const [statsLoading] = React.useState(false);
   const [statsError] = React.useState('');
-  const [userStats] = React.useState<any>(null);
+  const [userStats, setUserStats] = React.useState<any>(null);
 
   // Filtering functions (replace with real logic as needed)
   function getFilteredFoodLogs(logs: FoodLog[]) {
-    return logs.filter((log) => {
+    return logs.filter((_log) => {
       // For now, keep all logs since we don't know the exact date field structure
       // This will be updated once we identify the correct date field
       return true;
@@ -124,17 +155,18 @@ export default function LogsAndReports() {
   };
   const userLabel = (id: number) => {
     const u = usersById[id];
-    if (!u) return ''; // Leave blank if user not loaded
-    return (u.firstName && u.firstName.trim()) || ''; // Leave blank if firstName not available
-  };
-  const ensureUserLoaded = async (id: number) => {
-    if (usersById[id]) return;
-    try {
-      const fetched = await apiService.getUserById(id);
-      setUsersById(prev => ({ ...prev, [id]: fetched }));
-    } catch (e) {
-      console.warn('Failed to fetch user', id);
+    if (!u) {
+      return `User ${id}`;
     }
+    // Match UserLogs logic: show firstName if available, else first part of name
+    if (u.firstName) {
+      return u.firstName;
+    }
+    if (u.name) {
+      const parts = u.name.split(' ');
+      return parts[0];
+    }
+    return `User ${id}`;
   };
 
   const getPeriodLabel = () => {
@@ -547,7 +579,7 @@ export default function LogsAndReports() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredNutrientLogs.map((log) => { ensureUserLoaded(log.userId); return (
+                  {filteredNutrientLogs.map((log) => (
                     <tr key={log.id} data-testid={`nutrient-log-${log.id}`}>
                       <td>{log.id}</td>
                       <td>{log.userId}</td>
@@ -559,7 +591,7 @@ export default function LogsAndReports() {
                       <td>{format2(log.carbs)}</td>
                       <td style={{ fontSize: '12px' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
                     </tr>
-                  )})}
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -588,7 +620,7 @@ export default function LogsAndReports() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDailyIntakeLogs.map((log) => { ensureUserLoaded(log.userId); return (
+                  {filteredDailyIntakeLogs.map((log) => (
                     <tr key={log.id} data-testid={`daily-intake-log-${log.id}`}>
                       <td>{log.id}</td>
                       <td>{log.userId}</td>
@@ -596,7 +628,7 @@ export default function LogsAndReports() {
                       <td>{format2(log.calorieIntake)}</td>
                       <td style={{ fontSize: '12px' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
                     </tr>
-                  )})}
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -604,38 +636,6 @@ export default function LogsAndReports() {
         </div>
 
         {/* User Stats */}
-        {/* User Logs Table */}
-        <div className="logs-reports-box" data-testid="user-logs-section">
-          <h3>👤 User Logs</h3>
-          {userLogs.length === 0 ? (
-            <div className="no-data-text">No user logs found.</div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table data-testid="user-logs-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>User ID</th>
-                    <th>First Name</th>
-                    <th>Action</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userLogs.map((log) => { ensureUserLoaded(log.userId); return (
-                    <tr key={log.id} data-testid={`user-log-${log.id}`}>
-                      <td>{log.id}</td>
-                      <td>{log.userId}</td>
-                      <td>{userLabel(log.userId)}</td>
-                      <td>{log.action}</td>
-                      <td>{log.timestamp ? new Date(log.timestamp).toLocaleString() : ''}</td>
-                    </tr>
-                  )})}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
         <div className="logs-reports-box" data-testid="analytics-section">
           <h3>📊 Reports & Analytics</h3>
           {statsLoading && <div className="loading-text" data-testid="stats-loading">Loading user stats...</div>}
@@ -774,10 +774,11 @@ export default function LogsAndReports() {
                       <Pie data={[
                         { name: 'Active', value: userStats.active },
                         { name: 'Inactive', value: userStats.inactive }
-                      ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60}>
+                      ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label>
                         <Cell key="active" fill="#27ae60" />
                         <Cell key="inactive" fill="#e74c3c" />
                       </Pie>
+                      <Tooltip />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
