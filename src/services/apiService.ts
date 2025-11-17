@@ -10,6 +10,7 @@ export interface User {
   role: string;
   status: 'Active' | 'Inactive';
   dateCreated: string;
+  createdAt: string;
   firstName: string;
   lastName: string;
   isActive: boolean;
@@ -34,6 +35,12 @@ export interface ApiResponse<T> {
 }
 
 class ApiService {
+  // User logs
+  async getUserLogs() {
+    return this.request<{ userLogs: { id: number; userId: number; action: string; timestamp: string }[] }>(
+      '/admin/user-logs'
+    );
+  }
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}

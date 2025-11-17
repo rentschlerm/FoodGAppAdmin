@@ -15,7 +15,22 @@ export default function UserLogs() {
       const response = await apiService.getUsers(search)
       
       if (response.users) {
-        setUsers(response.users)
+        // Sort users by created date from latest to oldest
+        const sortedUsers = response.users.map(user => ({
+          ...user,
+          // Ensure we have proper name display (firstName + lastName or name)
+          name: user.firstName && user.lastName 
+            ? `${user.firstName} ${user.lastName}` 
+            : user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          // Use createdAt if available, otherwise use dateCreated
+          dateCreated: user.createdAt || user.dateCreated || 'N/A'
+        })).sort((a, b) => {
+          // Sort by date from latest to oldest
+          const dateA = new Date(a.createdAt || a.dateCreated || 0).getTime()
+          const dateB = new Date(b.createdAt || b.dateCreated || 0).getTime()
+          return dateB - dateA
+        })
+        setUsers(sortedUsers)
       } else {
         throw new Error('No users data received from backend')
       }
@@ -122,10 +137,11 @@ export default function UserLogs() {
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-  <table style={{ width: '100%', borderCollapse: 'collapse' }} data-testid="users-table">
+        {/* Existing detailed users table */}
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }} data-testid="users-table">
           <thead>
             <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-              <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Name</th>
+              <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>First Name</th>
               <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Email</th>
               <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Role</th>
               <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Status</th>
@@ -149,9 +165,9 @@ export default function UserLogs() {
                       fontSize: '14px',
                       fontWeight: 'bold'
                     }}>
-                      {user.name.charAt(0)}
+                      {(user.firstName || user.name || '').charAt(0)}
                     </div>
-                    {user.name}
+                    {(user.firstName || (user.name ? user.name.split(' ')[0] : ''))}
                   </div>
                 </td>
                 <td style={{ padding: '12px', color: '#666' }}>{user.email}</td>
@@ -168,7 +184,15 @@ export default function UserLogs() {
                     {user.status}
                   </span>
                 </td>
-                <td style={{ padding: '12px', color: '#666' }}>{user.dateCreated}</td>
+                <td style={{ padding: '12px', color: '#666' }}>
+                  {user.dateCreated !== 'N/A' 
+                    ? new Date(user.dateCreated).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })
+                    : 'N/A'}
+                </td>
                 <td style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button
@@ -199,6 +223,27 @@ export default function UserLogs() {
                     </button>
                   </div>
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* New concise User Names table */}
+      <div style={{ overflowX: 'auto' }}>
+  <h3 style={{ margin: '10px 0', fontSize: '18px', fontWeight: 'bold' }}>User First Names</h3>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }} data-testid="user-names-table">
+          <thead>
+            <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 'bold' }}>User ID</th>
+              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 'bold' }}>First Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={`name-row-${u.id}`} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '10px', fontSize: '14px' }}>{u.id}</td>
+                <td style={{ padding: '10px', fontSize: '14px' }}>{u.firstName || (u.name ? u.name.split(' ')[0] : '')}</td>
               </tr>
             ))}
           </tbody>

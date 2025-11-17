@@ -138,7 +138,8 @@
 .summary-table td {
   padding: 6px 8px;
   border: 1px solid #ecf0f1;
-  color: #2c3e50;
+  color: #2c3e50 !important;
+  background: #ffffff !important;
 }
 
 .summary-table tbody tr:nth-child(even) {
@@ -160,6 +161,32 @@
   font-style: italic;
 }
 
+/* Ensure invoice summary tables always render with dark text */
+.invoice-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoice-section table th {
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #bdc3c7;
+}
+
+.invoice-section table td {
+  padding: 10px 8px;
+  border: 1px solid #bdc3c7;
+  color: #2c3e50;
+  background-color: #ffffff;
+}
+
+.invoice-section table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
 @media print {
   /* Hide everything except the printable summary */
   body * {
@@ -175,12 +202,16 @@
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    max-width: 210mm !important;
     max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
     border: none !important;
     padding: 20px !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   .print-button {
@@ -191,13 +222,129 @@
     font-size: 11px;
   }
   
-  .summary-section {
-    page-break-inside: avoid;
-    margin-bottom: 20px;
+  .summary-section, .invoice-section {
+    page-break-inside: avoid !important;
+    margin-bottom: 20px !important;
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important; /* subtle divider */
+  }
+
+  .summary-table th, .summary-table td {
+    color: #2c3e50 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .invoice-header {
+    page-break-inside: avoid !important;
+    border: none !important;
+    margin-bottom: 20px !important;
+  }
+  /* Repeating header on each printed page */
+  .print-page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 110px; /* enough for logo & meta */
+    padding: 14px 28px 10px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: #ffffff !important;
+    border-bottom: 2px solid #2c3e50 !important;
+    z-index: 9999;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .print-page-header img { height: 52px; }
+  .print-page-header h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #2c3e50;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .print-page-header .meta-block { font-size: 11px; color: #34495e; text-align: right; }
+  .print-page-header .meta-block div { line-height: 1.25; }
+  /* Push printable content below fixed header */
+  .printable-summary { margin-top: 120px !important; }
+  .page-break { page-break-before: always !important; }
+  
+
+/* Screen only: hide repeating header is declared outside @media print at end */
+  /* Strongly enforce dark text in invoice tables when printing */
+  .invoice-section table th,
+  .invoice-section table td {
+    color: #2c3e50 !important;
+    background: #ffffff !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   
   /* Ensure good print formatting */
   .printable-summary h2 {
     margin-top: 0 !important;
   }
+  
+  /* Fix chart sizing in print */
+  .recharts-wrapper {
+    max-width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .recharts-surface {
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Force all SVG elements to print with colors */
+  svg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Ensure chart containers are visible */
+  .recharts-responsive-container {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Force visibility of all chart elements */
+  .recharts-layer,
+  .recharts-pie,
+  .recharts-scatter,
+  .recharts-legend-wrapper {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Ensure tables are properly contained */
+  table {
+    page-break-inside: avoid !important;
+    border-collapse: collapse !important;
+  }
+  
+  /* Prevent text from being cut off */
+  * {
+    overflow: visible !important;
+  }
+
+  /* Hide chart elements in printable summary to show tables only */
+  .print-hide {
+    display: none !important;
+    visibility: hidden !important;
+  }
 }
+
+/* Elements that should appear only in print (hidden on screen) */
+.print-only { display: none; }
+@media print { .print-only { display: table !important; visibility: visible !important; } }
+
+/* Hide repeating header on screen (only visible for print) */
+.print-page-header { display: none; }
+@media print { .print-page-header { display: flex !important; } }
