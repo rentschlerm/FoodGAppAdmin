@@ -153,21 +153,6 @@ export default function LogsAndReports() {
     if (typeof n !== 'number' || !isFinite(n)) return '';
     return n.toFixed(2);
   };
-  const userLabel = (id: number) => {
-    const u = usersById[id];
-    if (!u) {
-      return `User ${id}`;
-    }
-    // Match UserLogs logic: show firstName if available, else first part of name
-    if (u.firstName) {
-      return u.firstName;
-    }
-    if (u.name) {
-      const parts = u.name.split(' ');
-      return parts[0];
-    }
-    return `User ${id}`;
-  };
 
   const getPeriodLabel = () => {
     const start = new Date(startDate).toLocaleDateString();
@@ -398,7 +383,6 @@ export default function LogsAndReports() {
                                 </span>
                               )}
                             </td>
-                            {/* Removed Date cell */}
                           </tr>
                         ));
                       })}
