@@ -375,7 +375,7 @@ export default function LogsAndReports() {
                         <th>Food Name</th>
                         <th>Category</th>
                         <th>Frequency</th>
-                        <th>Date</th>
+                        {/* Removed Date column */}
                       </tr>
                     </thead>
                     <tbody>
@@ -399,7 +399,7 @@ export default function LogsAndReports() {
                                 </span>
                               )}
                             </td>
-                            <td>{food.updatedAt ? new Date(food.updatedAt).toLocaleDateString() : ''}</td>
+                            {/* Removed Date cell */}
                           </tr>
                         ));
                       })}
@@ -809,7 +809,7 @@ export default function LogsAndReports() {
                       <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3498db' }}>
                         {userStats.total > 0 ? Math.round((userStats.active / userStats.total) * 100) : 0}%
                       </div>
-                      <div style={{ fontSize: '12px', color: '#3498db', textTransform: 'uppercase' }}>Activity Rate</div>
+                      <div style={{ fontSize: '12px', color: '#3498db', textTransform: 'uppercase' }}>Active Rate</div>
                     </div>
                   </div>
                 </div>
