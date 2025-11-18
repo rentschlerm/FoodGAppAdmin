@@ -1,4 +1,4 @@
-  // Chart color palette (fixes crash)
+// Chart color palette (fixes crash)
   const CHART_COLORS = [
     '#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#0088fe', '#00c49f', '#ffbb28', '#ff8042', '#a4de6c', '#d0ed57', '#8dd1e1', '#83a6ed', '#8e44ad', '#e67e22', '#e74c3c', '#2ecc71', '#3498db', '#f1c40f', '#1abc9c', '#34495e'
   ];
@@ -375,6 +375,7 @@ export default function LogsAndReports() {
                         <th>Food Name</th>
                         <th>Category</th>
                         <th>Frequency</th>
+                        <th>Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -398,6 +399,7 @@ export default function LogsAndReports() {
                                 </span>
                               )}
                             </td>
+                            <td>{food.updatedAt ? new Date(food.updatedAt).toLocaleDateString() : ''}</td>
                           </tr>
                         ));
                       })}
@@ -567,9 +569,10 @@ export default function LogsAndReports() {
               <table data-testid="nutrient-logs-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>User ID</th>
                     <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
                     <th>Food ID</th>
                     <th>Calories</th>
                     <th>Protein</th>
@@ -579,17 +582,18 @@ export default function LogsAndReports() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredNutrientLogs.map((log) => (
-                    <tr key={log.id} data-testid={`nutrient-log-${log.id}`}>
-                      <td>{log.id}</td>
+                  {filteredNutrientLogs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((log) => (
+                    <tr key={log.id}>
                       <td>{log.userId}</td>
-                      <td>{userLabel(log.userId)}</td>
+                      <td>{usersById[log.userId]?.firstName || ''}</td>
+                      <td>{usersById[log.userId]?.lastName || ''}</td>
+                      <td>{usersById[log.userId]?.email || ''}</td>
                       <td>{log.foodId}</td>
                       <td>{format2(log.calories)}</td>
                       <td>{format2(log.protein)}</td>
                       <td>{format2(log.fat)}</td>
                       <td>{format2(log.carbs)}</td>
-                      <td style={{ fontSize: '12px' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
+                      <td>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -615,18 +619,22 @@ export default function LogsAndReports() {
                     <th>ID</th>
                     <th>User ID</th>
                     <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
                     <th>Calorie Intake</th>
                     <th>Updated At</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDailyIntakeLogs.map((log) => (
-                    <tr key={log.id} data-testid={`daily-intake-log-${log.id}`}>
+                  {filteredDailyIntakeLogs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((log) => (
+                    <tr key={log.id}>
                       <td>{log.id}</td>
                       <td>{log.userId}</td>
-                      <td>{userLabel(log.userId)}</td>
+                      <td>{usersById[log.userId]?.firstName || ''}</td>
+                      <td>{usersById[log.userId]?.lastName || ''}</td>
+                      <td>{usersById[log.userId]?.email || ''}</td>
                       <td>{format2(log.calorieIntake)}</td>
-                      <td style={{ fontSize: '12px' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
+                      <td>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1046,24 +1054,32 @@ export default function LogsAndReports() {
                     <tr style={{ backgroundColor: '#ecf0f1' }}>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>User ID</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>First Name</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Last Name</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Email</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>Calories</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>Protein</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>Fat</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>Carbs</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredNutrientLogs.slice(0, 10).map((log, index) => (
+                    {filteredNutrientLogs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 10).map((log, index) => (
                       <tr key={log.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa' }}>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{log.userId}</td>
-                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{userLabel(log.userId)}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.firstName || ''}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.lastName || ''}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.email || ''}</td>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>{format2(log.calories)}</td>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>{format2(log.protein)}g</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>{format2(log.fat)}g</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>{format2(log.carbs)}g</td>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     ))}
                     {filteredNutrientLogs.length > 10 && (
                       <tr>
-                        <td colSpan={5} style={{ 
+                        <td colSpan={10} style={{ 
                           padding: '10px', 
                           border: '1px solid #bdc3c7', 
                           textAlign: 'center', 
@@ -1127,22 +1143,26 @@ export default function LogsAndReports() {
                     <tr style={{ backgroundColor: '#ecf0f1' }}>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>User ID</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>First Name</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Last Name</th>
+                      <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Email</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>Calorie Intake</th>
                       <th style={{ padding: '12px', border: '1px solid #bdc3c7', textAlign: 'left', fontWeight: 'bold', color: '#2c3e50' }}>Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredDailyIntakeLogs.slice(0, 10).map((log, index) => (
+                    {filteredDailyIntakeLogs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 10).map((log, index) => (
                       <tr key={log.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa' }}>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{log.userId}</td>
-                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{userLabel(log.userId)}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.firstName || ''}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.lastName || ''}</td>
+                        <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{usersById[log.userId]?.email || ''}</td>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', textAlign: 'center', fontWeight: 'bold', color: '#2c3e50' }}>{format2(log.calorieIntake)}</td>
                         <td style={{ padding: '10px', border: '1px solid #bdc3c7', color: '#2c3e50' }}>{log.updatedAt ? new Date(log.updatedAt).toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     ))}
                     {filteredDailyIntakeLogs.length > 10 && (
                       <tr>
-                        <td colSpan={4} style={{ 
+                        <td colSpan={6} style={{ 
                           padding: '10px', 
                           border: '1px solid #bdc3c7', 
                           textAlign: 'center', 
