@@ -375,7 +375,6 @@ export default function LogsAndReports() {
                         <th>Food Name</th>
                         <th>Category</th>
                         <th>Frequency</th>
-                        {/* Removed Date column */}
                       </tr>
                     </thead>
                     <tbody>
